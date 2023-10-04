@@ -1,0 +1,19 @@
+name: Build Unpublished
+
+on:
+  workflow_call:
+    inputs:
+      range:
+        type: string
+        default: "."
+
+jobs:
+  unpublished:
+    uses: hiconic-os/hiconic.ci.workflows/.github/workflows/build.yaml@main
+    secrets: inherit
+    with:
+        job-name: 'build-unpublished'
+        # github.ref is 'refs/heads/${branch}', e.g. 'refs/heads/main'
+        checkout-ref: '${{ github.ref }}'
+        # github.ref_name is (for manually triggered) the name of the branch, e.g. main
+        analyze-codebase-opts: '+baseBranch ${{ github.ref_name }} +range ${{ inputs.range }}'

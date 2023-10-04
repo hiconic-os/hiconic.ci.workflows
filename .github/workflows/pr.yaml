@@ -1,0 +1,15 @@
+name: Handle PRs
+
+on:
+  workflow_call:
+
+jobs:
+  pr:
+    uses: hiconic-os/hiconic.ci.workflows/.github/workflows/build.yaml@main
+    secrets: inherit
+    with:
+        job-name: 'pull-request'
+        checkout-ref: 'refs/pull/${{ github.event.number }}/head'
+        # github.base_ref is the name of the branch, e.g. 'main'
+        analyze-codebase-opts: '+baseBranch ${{ github.base_ref }}'
+        comment-input: '${{ github.event.pull_request.body }}'

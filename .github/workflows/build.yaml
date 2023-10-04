@@ -1,0 +1,156 @@
+name: Handle PRs
+
+# https://docs.github.com/en/actions/using-workflows/reusing-workflows
+
+on:
+  workflow_call:
+    inputs:
+      # Just as information, has not impact on logic
+      job-name:
+        type: string
+      # Parameter for dr analyze-codebase to determine the artifacts to build (git diff pr PRs, unpiblished or explicit range)
+      analyze-codebase-opts:
+        type: string
+      # Branch to checkout - either the PR branch, or the branch where we have started the build 
+      checkout-ref:
+        type: string
+      comment-input:
+        type: string
+        required: false
+
+    secrets:
+      OPENTF_REPO_USER:
+        required: false
+      OPENTF_REPO_PASSWORD:
+        required: false
+      DEVROCK_PIPELINE_UPLOAD_USER:
+        required: true
+      DEVROCK_PIPELINE_UPLOAD_PASSWORD:
+        required: true
+      DEVROCK_PIPELINE_FIREBASE_LOCKING_USER:
+        required: true
+      DEVROCK_PIPELINE_FIREBASE_LOCKING_PASSWORD:
+        required: true
+      DEVROCK_PIPELINE_FIREBASE_LOCKING_WEBAPI_KEY:
+        required: true
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container: ghcr.io/hiconic-os/ci-devrock-sdk/main:latest
+
+    env:
+      # Used in this file
+
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GITHUB_REPO_NAME: ${{ github.event.repository.name }}
+      GIT_REPO_DIR: ${{ github.workspace }}/git-repo
+
+      DR_OPTS: "--stacktrace"
+
+      # Used by Devrock tools
+
+      DEVROCK_REPOSITORY_CONFIGURATION: ${{ github.workspace }}/git-repo/repository-configuration-ci.yaml
+
+      DEVROCK_PIPELINE_FIREBASE_LOCKING_PASSWORD: ${{ secrets.DEVROCK_PIPELINE_FIREBASE_LOCKING_PASSWORD }}
+      DEVROCK_PIPELINE_FIREBASE_LOCKING_USER: ${{ secrets.DEVROCK_PIPELINE_FIREBASE_LOCKING_USER }}
+      DEVROCK_PIPELINE_FIREBASE_LOCKING_WEBAPI_KEY: ${{ secrets.DEVROCK_PIPELINE_FIREBASE_LOCKING_WEBAPI_KEY }}
+
+      DEVROCK_PIPELINE_EXTERNAL_SEQUENCING: true
+      DEVROCK_PIPELINE_CANDIDATE_INSTALL: false
+
+      # Required by repository-configuration-ci.yaml (in each repository)
+
+      OPENTF_REPO_USER: ${{ secrets.OPENTF_REPO_USER }}
+      OPENTF_REPO_PASSWORD: ${{ secrets.OPENTF_REPO_PASSWORD }}
+
+      DEVROCK_PIPELINE_UPLOAD_USER: ${{ secrets.DEVROCK_PIPELINE_UPLOAD_USER }}
+      DEVROCK_PIPELINE_UPLOAD_PASSWORD: ${{ secrets.DEVROCK_PIPELINE_UPLOAD_PASSWORD }}
+
+      DEVROCK_PIPELINE_COLORS: false
+
+    defaults:
+      run:
+        working-directory: ${{ env.GIT_REPO_DIR }}
+
+    steps:
+      - name: Initialize Workspace
+        working-directory: ${{ github.workspace }}
+        run: |
+          mkdir inst
+          mkdir repo
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.checkout-ref }}
+          path: "git-repo"
+
+      # fetching depth 2 just to be sure. We don't need history, just the bases for computing diff and enabling pushing
+      # for pushing we do another fetch later to get the chain of commits that shows base_ref (branch name) can be 
+      # fast-forwarded to inputs.checkout-ref
+      - name: Analyze Codebase 
+        run: |
+          echo $SHELL
+
+          dr initialize-exchange +commentInput "${{ inputs.comment-input }}" ${{ env.DR_OPTS }}
+
+          if [ '${{ github.event_name }}' = 'pull_request' ]; then
+            echo "Fetching origin ${{ github.base_ref }}"
+            # base_ref is the name of branch we merge to, e.g. 'main'
+            git fetch origin ${{ github.base_ref }} --depth 2
+
+            echo "Setting up GitHub notifications"
+            echo '{gitHubToken: "${env.GITHUB_TOKEN}", organization: "${{ github.event.organization.login }}", repository: "${{ env.GITHUB_REPO_NAME }}", issue: "${{ github.event.number }}"}' > .step-exchange/git-hub-notification-connection.yaml
+            echo '{requestLabelMappings: [{request: "PublishArtifacts", label: "published", color: "00a100"}]}' > .step-exchange/git-hub-notification-mapping.yaml
+          fi
+          echo '!devrock.cicd.model.api.FirebaseRealtimeDistributedLocking {owner: "${{ inputs.job-name }}/${{ github.event.organization.login }}/${{ env.GITHUB_REPO_NAME }}/${{ github.ref_name }}#${{ github.run_number}}", user: "${env.DEVROCK_PIPELINE_FIREBASE_LOCKING_USER}", password: "${env.DEVROCK_PIPELINE_FIREBASE_LOCKING_PASSWORD}", webApiKey: "${env.DEVROCK_PIPELINE_FIREBASE_LOCKING_WEBAPI_KEY}", tableUri: "https://hiconic-os-default-rtdb.europe-west1.firebasedatabase.app/test-locks/"}' > .step-exchange/distributed-locking.yaml
+
+          dr enrich-exchange-context ${{ env.DR_OPTS }}
+          dr analyze-codebase ${{ inputs.analyze-codebase-opts }} ${{ env.DR_OPTS }}
+
+      - name: Build Artifacts 
+        run: dr build-artifacts +generateOptionals true ${{ env.DR_OPTS }}
+
+      - name: Check Linking 
+        run: dr check-linking ${{ env.DR_OPTS }}
+    
+      - name: Run Tests 
+        run: dr run-tests ${{ env.DR_OPTS }}
+
+      # https://github.com/marketplace/actions/junit-report-action
+      - name: Create Test Report
+        uses: mikepenz/action-junit-report@v4
+        if: always()
+        with:
+          report_paths: "**/dist/testReports/*.xml"
+          annotate_only: true
+          include_passed: false
+          detailed_summary: true
+
+      # The git fetch is necessary as we need to fetch enough so git sees the common history
+      - name: Fetch PR Branch History
+        if: github.event_name == 'pull_request'
+        run: |
+          numCommits=$(( ${{ github.event.pull_request.commits }} + 1 ))
+
+          echo "Fetching PR brach's git history"
+          git fetch origin ${{ inputs.checkout-ref }} --depth=${numCommits}
+
+      - name: Publish
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+
+          dr raise-and-merge-artifacts ${{ env.DR_OPTS }}
+
+          dr publish-artifacts ${{ env.DR_OPTS }}
+
+      - name: Save step-exchange Data
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: "step-exchange--${{ env.GITHUB_REPO_NAME }}--#${{ github.run_number }}"
+          path: ${{ github.workspace }}/git-repo/.step-exchange/
+
+  ctx:
+    uses: hiconic-os/hiconic.ci.workflows/.github/workflows/dump-context.yaml@main
