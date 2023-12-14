@@ -19,10 +19,6 @@ on:
         required: false
 
     secrets:
-      OPENTF_REPO_USER:
-        required: false
-      OPENTF_REPO_PASSWORD:
-        required: false
       DEVROCK_PIPELINE_UPLOAD_USER:
         required: true
       DEVROCK_PIPELINE_UPLOAD_PASSWORD:
@@ -60,8 +56,7 @@ jobs:
 
       # Required by repository-configuration-ci.yaml (in each repository)
 
-      OPENTF_REPO_USER: ${{ secrets.OPENTF_REPO_USER }}
-      OPENTF_REPO_PASSWORD: ${{ secrets.OPENTF_REPO_PASSWORD }}
+      GITHUB_READ_PACKAGES_TOKEN: ${{ secrets.DEVROCK_PIPELINE_UPLOAD_PASSWORD }}
 
       DEVROCK_PIPELINE_UPLOAD_USER: ${{ secrets.DEVROCK_PIPELINE_UPLOAD_USER }}
       DEVROCK_PIPELINE_UPLOAD_PASSWORD: ${{ secrets.DEVROCK_PIPELINE_UPLOAD_PASSWORD }}
