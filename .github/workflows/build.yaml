@@ -83,7 +83,7 @@ jobs:
       # fetching depth 2 just to be sure. We don't need history, just the bases for computing diff and enabling pushing
       # for pushing we do another fetch later to get the chain of commits that shows base_ref (branch name) can be 
       # fast-forwarded to inputs.checkout-ref
-      - name: Analyze Codebase 
+      - name: Analyze Codebase
         run: |
           echo $SHELL
 
@@ -103,13 +103,13 @@ jobs:
           dr enrich-exchange-context ${{ env.DR_OPTS }}
           dr analyze-codebase ${{ inputs.analyze-codebase-opts }} ${{ env.DR_OPTS }}
 
-      - name: Build Artifacts 
+      - name: Build Artifacts
         run: dr build-artifacts +generateOptionals true ${{ env.DR_OPTS }}
 
-      - name: Check Linking 
+      - name: Check Linking
         run: dr check-linking ${{ env.DR_OPTS }}
-    
-      - name: Run Tests 
+
+      - name: Run Tests
         run: dr run-tests ${{ env.DR_OPTS }}
 
       # https://github.com/marketplace/actions/junit-report-action
