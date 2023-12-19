@@ -29,6 +29,12 @@ on:
         required: true
       DEVROCK_PIPELINE_FIREBASE_LOCKING_WEBAPI_KEY:
         required: true
+
+# Ensure no two workflows of the same type (e.g. 2 PRs) are running at the same time
+# FYI within a repo, no 2 workflows with the same group value would run concurrently; thus if the value is workflow, we what was said above
+concurrency:
+  group: ${{ github.workflow }}
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -114,8 +120,6 @@ jobs:
       # fast-forwarded to inputs.checkout-ref
       - name: Analyze Codebase
         run: |
-          echo $SHELL
-
           dr initialize-exchange +commentInput "${{ inputs.comment-input }}" ${{ env.DR_OPTS }}
 
           if [ '${{ github.event_name }}' = 'pull_request' ]; then
