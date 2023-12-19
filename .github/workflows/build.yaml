@@ -80,6 +80,35 @@ jobs:
           ref: ${{ inputs.checkout-ref }}
           path: "git-repo"
 
+      # The git fetch is necessary as we need to fetch enough so git sees the common history
+      - name: Fetch PR Branch History
+        if: github.event_name == 'pull_request'
+        run: |
+          numCommits=$(( ${{ github.event.pull_request.commits }} + 1 ))
+
+          echo "Fetching PR brach's history - ${numCommits} commits"
+          git fetch origin ${{ inputs.checkout-ref }} --depth=${numCommits}
+
+          # base_ref is the name of branch we merge to, e.g. 'main'
+          echo "Fetching base branch: ${{ github.base_ref }}"
+          git fetch origin ${{ github.base_ref }} --depth 2
+
+          echo "----------"
+          echo "Branches:"
+          git branch -avv
+
+          echo "----------"
+          echo "History:"
+          git log --graph --oneline --all -n ${numCommits}
+
+      - name: Check PR Branch Up To Date
+        if: github.event_name == 'pull_request'
+        run: |
+          if ! git merge-base --is-ancestor origin/${{ github.base_ref }} HEAD; then
+            echo "===> PR branch is not up to date. Base branch '${{ github.base_ref }}' is not its ancestor!!!"
+            exit 1
+          fi
+
       # fetching depth 2 just to be sure. We don't need history, just the bases for computing diff and enabling pushing
       # for pushing we do another fetch later to get the chain of commits that shows base_ref (branch name) can be 
       # fast-forwarded to inputs.checkout-ref
@@ -90,10 +119,6 @@ jobs:
           dr initialize-exchange +commentInput "${{ inputs.comment-input }}" ${{ env.DR_OPTS }}
 
           if [ '${{ github.event_name }}' = 'pull_request' ]; then
-            echo "Fetching origin ${{ github.base_ref }}"
-            # base_ref is the name of branch we merge to, e.g. 'main'
-            git fetch origin ${{ github.base_ref }} --depth 2
-
             echo "Setting up GitHub notifications"
             echo '{gitHubToken: "${env.GITHUB_TOKEN}", organization: "${{ github.event.organization.login }}", repository: "${{ env.GITHUB_REPO_NAME }}", issue: "${{ github.event.number }}"}' > .step-exchange/git-hub-notification-connection.yaml
             echo '{requestLabelMappings: [{request: "PublishArtifacts", label: "published", color: "00a100"}]}' > .step-exchange/git-hub-notification-mapping.yaml
@@ -121,15 +146,6 @@ jobs:
           annotate_only: true
           include_passed: false
           detailed_summary: true
-
-      # The git fetch is necessary as we need to fetch enough so git sees the common history
-      - name: Fetch PR Branch History
-        if: github.event_name == 'pull_request'
-        run: |
-          numCommits=$(( ${{ github.event.pull_request.commits }} + 1 ))
-
-          echo "Fetching PR brach's git history"
-          git fetch origin ${{ inputs.checkout-ref }} --depth=${numCommits}
 
       - name: Publish
         run: |
