@@ -9,7 +9,7 @@ on:
 
 jobs:
   unpublished:
-    uses: hiconic-os/hiconic.ci.workflows/.github/workflows/build.yaml@main
+    uses: ./.github/workflows/build.yaml
     secrets: inherit
     with:
         job-name: 'build-unpublished'

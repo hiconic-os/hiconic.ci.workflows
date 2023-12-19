@@ -148,4 +148,4 @@ jobs:
           path: ${{ github.workspace }}/git-repo/.step-exchange/
 
   ctx:
-    uses: hiconic-os/hiconic.ci.workflows/.github/workflows/dump-context.yaml@main
+    uses: ./.github/workflows/dump-context.yaml
