@@ -1,4 +1,4 @@
-name: Handle PRs
+name: Build
 
 # https://docs.github.com/en/actions/using-workflows/reusing-workflows
 
