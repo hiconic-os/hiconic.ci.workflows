@@ -1,0 +1,20 @@
+name: 'Upload to hiconic-os server'
+inputs:
+  user:
+    required: true
+  password:
+    required: true
+  local-dir:
+    required: true
+  remote-dir:
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - shell: bash
+      run: |
+        lftp -u ${{ inputs.user }},${{ inputs.password }} -p 22 sftp://home29449762.1and1-data.host <<EOF
+        set sftp:auto-confirm yes
+        mirror --reverse --delete --verbose "${{ inputs.local-dir }}" "${{ inputs.remote-dir }}"
+        quit
+        EOF
