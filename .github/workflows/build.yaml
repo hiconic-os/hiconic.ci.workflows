@@ -31,7 +31,8 @@ on:
         required: true
 
 # Ensure no two workflows of the same type (e.g. 2 PRs) are running at the same time
-# FYI within a repo, no 2 workflows with the same group value would run concurrently; thus if the value is workflow, we what was said above
+# FYI within a repo, no 2 workflows with the same group value would run concurrently;
+# github.workflow is the name of the action, e.g. "Pull Requests"
 concurrency:
   group: ${{ github.workflow }}
 
