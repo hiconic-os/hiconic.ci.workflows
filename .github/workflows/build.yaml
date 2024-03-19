@@ -14,6 +14,9 @@ on:
       # Branch to checkout - either the PR branch, or the branch where we have started the build 
       checkout-ref:
         type: string
+      publish:
+        type: boolean
+        default: true
       comment-input:
         type: string
         required: false
@@ -153,6 +156,7 @@ jobs:
           detailed_summary: true
 
       - name: Publish
+        if: inputs.publish
         run: |
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
@@ -168,5 +172,9 @@ jobs:
           name: "step-exchange--${{ env.GITHUB_REPO_NAME }}--#${{ github.run_number }}"
           path: ${{ github.workspace }}/git-repo/.step-exchange/
 
-  ctx:
-    uses: ./.github/workflows/dump-context.yaml
+#          
+# Uncomment 'ctx'job if you want to see what's available in context objects like ${ github.xyz }        
+#
+
+#  ctx:
+#    uses: ./.github/workflows/dump-context.yaml
