@@ -51,7 +51,7 @@ jobs:
       GITHUB_REPO_NAME: ${{ github.event.repository.name }}
       GIT_REPO_DIR: ${{ github.workspace }}/git-repo
 
-      DR_OPTS: "--stacktrace"
+      DR_OPTS: "--stacktrace --offline"
 
       # Used by Devrock tools
 
