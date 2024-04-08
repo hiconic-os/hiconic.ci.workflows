@@ -16,4 +16,4 @@ jobs:
         # github.ref is 'refs/heads/${branch}', e.g. 'refs/heads/main'
         checkout-ref: '${{ github.ref }}'
         # github.ref_name is (for manually triggered) the name of the branch, e.g. main
-        analyze-codebase-opts: '+baseBranch ${{ github.ref_name }} +range ${{ inputs.artifactId }} +allowReleaseViewBuilding true'
+        analyze-codebase-opts: '--baseBranch ${{ github.ref_name }} --range ${{ inputs.artifactId }} --allowReleaseViewBuilding true'
