@@ -137,9 +137,7 @@ jobs:
           hc-build analyze-codebase ${{ inputs.analyze-codebase-opts }} ${{ env.HC_BUILD_OPTS }}
 
       - name: Build Artifacts
-        run: |
-          export LANG=en_US.UTF-8
-          hc-build build-artifacts --generateOptionals true ${{ env.HC_BUILD_OPTS }}
+        run: hc-build build-artifacts --generateOptionals true ${{ env.HC_BUILD_OPTS }}
 
       - name: Check Linking
         run: hc-build check-linking ${{ env.HC_BUILD_OPTS }}
