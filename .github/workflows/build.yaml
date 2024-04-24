@@ -51,7 +51,7 @@ jobs:
       GITHUB_REPO_NAME: ${{ github.event.repository.name }}
       GIT_REPO_DIR: ${{ github.workspace }}/git-repo
 
-      HC_BUILD_OPTS: ""
+      HC_BUILD_OPTS: " : options --protocolCharset UTF-8"
 
       # Used by Devrock tools
 
