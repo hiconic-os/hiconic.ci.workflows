@@ -166,7 +166,7 @@ jobs:
           hc-build publish-artifacts ${{ env.HC_BUILD_OPTS }}
 
       - name: Save step-exchange Data
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: "step-exchange--${{ env.GITHUB_REPO_NAME }}--#${{ github.run_number }}"
