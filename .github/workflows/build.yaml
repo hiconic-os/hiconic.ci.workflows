@@ -42,7 +42,7 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
-    container: ghcr.io/hiconic-os/ci-devrock-sdk/main:latest
+    container: ghcr.io/hiconic-os/ci-hiconic-sdk/main:latest
 
     env:
       # Used in this file
