@@ -9,13 +9,16 @@ on:
       publish:
         type: boolean
         default: true
+      job-name:
+        type: string
+        default: 'custom-range'
 
 jobs:
   custom-range:
     uses: ./.github/workflows/build.yaml
     secrets: inherit
     with:
-        job-name: 'custom-range'
+        job-name: ${{ inputs.job-name }}
         # github.ref is 'refs/heads/${branch}', e.g. 'refs/heads/main'
         checkout-ref: '${{ github.ref }}'
         # github.ref_name is (for manually triggered) the name of the branch, e.g. main
