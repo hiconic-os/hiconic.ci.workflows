@@ -5,7 +5,7 @@ name: Build
 on:
   workflow_call:
     inputs:
-      # Just as information, has not impact on logic
+      # Just as information, has no impact on logic
       job-name:
         type: string
       # Parameter for hc-build analyze-codebase to determine the artifacts to build (git diff pr PRs, unpiblished or explicit range)
@@ -171,6 +171,7 @@ jobs:
         with:
           name: "step-exchange--${{ env.GITHUB_REPO_NAME }}--#${{ github.run_number }}"
           path: ${{ github.workspace }}/git-repo/.step-exchange/
+          if-no-files-found: ignore
 
 #          
 # Uncomment 'ctx'job if you want to see what's available in context objects like ${ github.xyz }        
