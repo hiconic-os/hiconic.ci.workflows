@@ -173,6 +173,14 @@ jobs:
           path: ${{ github.workspace }}/git-repo/.step-exchange/
           if-no-files-found: ignore
 
+      - name: Save Test Report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: "junit-results--${{ env.GITHUB_REPO_NAME }}--#${{ github.run_number }}"
+          path: "**/dist/testReports/*.xml"
+          if-no-files-found: ignore
+
 #          
 # Uncomment 'ctx'job if you want to see what's available in context objects like ${ github.xyz }        
 #
