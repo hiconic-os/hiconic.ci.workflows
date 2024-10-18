@@ -161,12 +161,13 @@ jobs:
           include_passed: false
           detailed_summary: true
 
+      # NOTE: using node-version: latest started failing with version 23.0.0
       - name: Setup Node.js
         if: inputs.publish && steps.analyze-codebase.outputs.hasNpm == 'true'
         uses: actions/setup-node@v4
         with:
-          node-version: 'latest'
-          registry-url: 'https://npm.pkg.github.com/'
+          node-version: '22.8.0'
+          registry-url: 'https://npm.pkg.github.com'
 
       - name: Publish
         if: inputs.publish
