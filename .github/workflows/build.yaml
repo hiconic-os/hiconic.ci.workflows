@@ -167,7 +167,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '22.8.0'
-          registry-url: 'https://npm.pkg.github.com'
+          registry-url: 'https://registry.npmjs.org'
 
       - name: Publish
         if: inputs.publish
@@ -185,6 +185,8 @@ jobs:
       - name: Publish npm Packages
         if: inputs.publish && steps.analyze-codebase.outputs.hasNpm == 'true'
         run: hc-build publish-npm-packages ${{ env.HC_BUILD_OPTS }}
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPMJS_TOKEN }}
         
       - name: Save step-exchange Data
         uses: actions/upload-artifact@v4
