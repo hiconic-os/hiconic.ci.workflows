@@ -133,7 +133,9 @@ jobs:
             echo '{gitHubToken: "${env.GITHUB_TOKEN}", organization: "${{ github.event.organization.login }}", repository: "${{ env.GITHUB_REPO_NAME }}", issue: "${{ github.event.number }}"}' > .step-exchange/git-hub-notification-connection.yaml
             echo '{requestLabelMappings: [{request: "PublishArtifacts", label: "published", color: "5319E7"}]}' > .step-exchange/git-hub-notification-mapping.yaml
           fi
-          echo '!devrock.cicd.model.api.FirebaseRealtimeDistributedLocking {owner: "${{ inputs.job-name }}/${{ github.event.organization.login }}/${{ env.GITHUB_REPO_NAME }}/${{ github.ref_name }}#${{ github.run_number}}", user: "${env.DEVROCK_PIPELINE_FIREBASE_LOCKING_USER}", password: "${env.DEVROCK_PIPELINE_FIREBASE_LOCKING_PASSWORD}", webApiKey: "${env.DEVROCK_PIPELINE_FIREBASE_LOCKING_WEBAPI_KEY}", tableUri: "https://hiconic-os-default-rtdb.europe-west1.firebasedatabase.app/test-locks/"}' > .step-exchange/distributed-locking.yaml
+
+          # Deactivated distributed locking as artifact-index update has now concurrency detection via HTTP status code 409 and retry
+          # echo '!devrock.cicd.model.api.FirebaseRealtimeDistributedLocking {owner: "${{ inputs.job-name }}/${{ github.event.organization.login }}/${{ env.GITHUB_REPO_NAME }}/${{ github.ref_name }}#${{ github.run_number}}", user: "${env.DEVROCK_PIPELINE_FIREBASE_LOCKING_USER}", password: "${env.DEVROCK_PIPELINE_FIREBASE_LOCKING_PASSWORD}", webApiKey: "${env.DEVROCK_PIPELINE_FIREBASE_LOCKING_WEBAPI_KEY}", tableUri: "https://hiconic-os-default-rtdb.europe-west1.firebasedatabase.app/test-locks/"}' > .step-exchange/distributed-locking.yaml
 
           hc-build enrich-exchange-context --commentInput "${{ inputs.comment-input }}" ${{ env.HC_BUILD_OPTS }}
           hc-build analyze-codebase ${{ inputs.analyze-codebase-opts }} ${{ env.HC_BUILD_OPTS }}
