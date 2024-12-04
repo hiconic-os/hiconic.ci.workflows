@@ -26,12 +26,6 @@ on:
         required: true
       DEVROCK_PIPELINE_UPLOAD_PASSWORD:
         required: true
-      DEVROCK_PIPELINE_FIREBASE_LOCKING_USER:
-        required: true
-      DEVROCK_PIPELINE_FIREBASE_LOCKING_PASSWORD:
-        required: true
-      DEVROCK_PIPELINE_FIREBASE_LOCKING_WEBAPI_KEY:
-        required: true
 
 # Ensure no two workflows of the same type (e.g. 2 PRs) are running at the same time
 # FYI within a repo, no 2 workflows with the same group value would run concurrently;
@@ -57,10 +51,6 @@ jobs:
       # Used by Devrock tools
 
       DEVROCK_REPOSITORY_CONFIGURATION: ${{ github.workspace }}/git-repo/repository-configuration-ci.yaml
-
-      DEVROCK_PIPELINE_FIREBASE_LOCKING_PASSWORD: ${{ secrets.DEVROCK_PIPELINE_FIREBASE_LOCKING_PASSWORD }}
-      DEVROCK_PIPELINE_FIREBASE_LOCKING_USER: ${{ secrets.DEVROCK_PIPELINE_FIREBASE_LOCKING_USER }}
-      DEVROCK_PIPELINE_FIREBASE_LOCKING_WEBAPI_KEY: ${{ secrets.DEVROCK_PIPELINE_FIREBASE_LOCKING_WEBAPI_KEY }}
 
       DEVROCK_PIPELINE_EXTERNAL_SEQUENCING: true
       DEVROCK_PIPELINE_CANDIDATE_INSTALL: false
@@ -133,9 +123,6 @@ jobs:
             echo '{gitHubToken: "${env.GITHUB_TOKEN}", organization: "${{ github.event.organization.login }}", repository: "${{ env.GITHUB_REPO_NAME }}", issue: "${{ github.event.number }}"}' > .step-exchange/git-hub-notification-connection.yaml
             echo '{requestLabelMappings: [{request: "PublishArtifacts", label: "published", color: "5319E7"}]}' > .step-exchange/git-hub-notification-mapping.yaml
           fi
-
-          # Deactivated distributed locking as artifact-index update has now concurrency detection via HTTP status code 409 and retry
-          # echo '!devrock.cicd.model.api.FirebaseRealtimeDistributedLocking {owner: "${{ inputs.job-name }}/${{ github.event.organization.login }}/${{ env.GITHUB_REPO_NAME }}/${{ github.ref_name }}#${{ github.run_number}}", user: "${env.DEVROCK_PIPELINE_FIREBASE_LOCKING_USER}", password: "${env.DEVROCK_PIPELINE_FIREBASE_LOCKING_PASSWORD}", webApiKey: "${env.DEVROCK_PIPELINE_FIREBASE_LOCKING_WEBAPI_KEY}", tableUri: "https://hiconic-os-default-rtdb.europe-west1.firebasedatabase.app/test-locks/"}' > .step-exchange/distributed-locking.yaml
 
           hc-build enrich-exchange-context --commentInput "${{ inputs.comment-input }}" ${{ env.HC_BUILD_OPTS }}
           hc-build analyze-codebase ${{ inputs.analyze-codebase-opts }} ${{ env.HC_BUILD_OPTS }}
