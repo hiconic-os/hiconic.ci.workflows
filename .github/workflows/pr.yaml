@@ -2,6 +2,11 @@ name: Handle PRs
 
 on:
   workflow_call:
+    secrets:
+      DEVROCK_PIPELINE_UPLOAD_USER:
+        required: true
+      DEVROCK_PIPELINE_UPLOAD_PASSWORD:
+        required: true
 
 jobs:
   pr:
