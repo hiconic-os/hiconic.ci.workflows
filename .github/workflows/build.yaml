@@ -8,15 +8,17 @@ on:
       # Just for information, has no impact on logic
       job-name:
         type: string
-      # Parameter for hc-build analyze-codebase to determine the artifacts to build (git diff pr PRs, unpiblished or explicit range)
+      # Parameter for 'hc-build analyze-codebase' to determine the artifacts to build (git diff for PRs, unpublished or explicit range)
       analyze-codebase-opts:
         type: string
       # Branch to checkout - either the PR branch, or the branch where we have started the build 
       checkout-ref:
         type: string
+      # Whether or not we want to publish
       publish:
         type: boolean
         default: true
+      # parameter for 'hc-build enrich-exchange-context'
       comment-input:
         type: string
         required: false
