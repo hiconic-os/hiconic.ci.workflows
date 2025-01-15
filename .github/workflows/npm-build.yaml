@@ -45,10 +45,10 @@ jobs:
         with:
           ref: ${{ github.ref }}
 
-      # - name: Set up Node.js
-      #   uses: actions/setup-node@v4
-      #   with:
-      #     node-version: '22.8.0' # Specify the Node.js version you want to use
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.12.0' # Specify the Node.js version you want to use
       #     registry-url: 'https://registry.npmjs.org'
 
       - name: Install dependencies
