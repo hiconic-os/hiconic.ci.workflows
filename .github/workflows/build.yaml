@@ -28,6 +28,8 @@ on:
         required: true
       DEVROCK_PIPELINE_UPLOAD_PASSWORD:
         required: true
+      NODE_AUTH_TOKEN:
+        required: false
 
 # Ensure no two workflows of the same type (e.g. 2 PRs) are running at the same time
 # FYI within a repo, no 2 workflows with the same group value would run concurrently;
