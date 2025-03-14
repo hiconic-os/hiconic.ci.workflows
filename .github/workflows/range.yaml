@@ -21,7 +21,9 @@ on:
 jobs:
   custom-range:
     uses: ./.github/workflows/build.yaml
-    secrets: inherit
+    secrets:
+      DEVROCK_PIPELINE_UPLOAD_USER: "${{ secrets.DEVROCK_PIPELINE_UPLOAD_USER }}"
+      DEVROCK_PIPELINE_UPLOAD_PASSWORD: "${{ secrets.DEVROCK_PIPELINE_UPLOAD_PASSWORD }}"
     with:
         job-name: ${{ inputs.job-name }}
         # github.ref is 'refs/heads/${branch}', e.g. 'refs/heads/main'
