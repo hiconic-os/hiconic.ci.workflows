@@ -9,6 +9,9 @@ on:
       publish:
         type: boolean
         default: true
+      run-integration-tests:
+        type: boolean
+        default: false
       job-name:
         type: string
         default: 'custom-range'
@@ -34,3 +37,4 @@ jobs:
         # github.ref_name is (for manually triggered) the name of the branch, e.g. main
         analyze-codebase-opts: '--baseBranch ${{ github.ref_name }} --buildArtifacts ${{ inputs.range }}'
         publish: ${{ inputs.publish }}
+        run-integration-tests: ${{ inputs.run-integration-tests }}

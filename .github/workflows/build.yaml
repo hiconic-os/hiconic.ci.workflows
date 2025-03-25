@@ -18,6 +18,10 @@ on:
       publish:
         type: boolean
         default: true
+      # Whether or not to run integration tests
+      run-integration-tests:
+        type: boolean
+        default: false
       # parameter for 'hc-build enrich-exchange-context'
       comment-input:
         type: string
@@ -65,8 +69,6 @@ jobs:
       DEVROCK_PIPELINE_UPLOAD_USER: ${{ secrets.DEVROCK_PIPELINE_UPLOAD_USER }}
       DEVROCK_PIPELINE_UPLOAD_PASSWORD: ${{ secrets.DEVROCK_PIPELINE_UPLOAD_PASSWORD }}
 
-      DEVROCK_PIPELINE_COLORS: false
-
       # Required by .npmrc
 
       NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
@@ -81,6 +83,7 @@ jobs:
         run: |
           mkdir inst
           mkdir repo
+          mkdir integration-tests
 
       - name: Checkout code
         uses: actions/checkout@v4
@@ -147,6 +150,14 @@ jobs:
       - name: Run Tests
         run: hc-build run-tests ${{ env.HC_BUILD_OPTS }}
 
+      - name: Run Integration Tests
+        if: inputs.run-integration-tests
+        # For whatever reason we have to use $GITHUB_WORKSPACE, because ${{ github.workspace }} would point elsewhere
+        # In other places it doesn't matter
+        # ${{ github.workspace}} - /home/runner/work/REPO_NAME/REPO_NAME
+        # $GITHUB_WORKSPACE      - /__w/REPO_NAME/REPO_NAME
+        run: hc-build run-integration-tests --workingDirectory "$GITHUB_WORKSPACE/integration-tests" ${{ env.HC_BUILD_OPTS }}
+
       # https://github.com/marketplace/actions/junit-report-action
       - name: Create Test Report
         uses: mikepenz/action-junit-report@v4
@@ -181,13 +192,14 @@ jobs:
       - name: Publish npm Packages
         if: inputs.publish && steps.analyze-codebase.outputs.hasNpm == 'true'
         run: hc-build publish-npm-packages ${{ env.HC_BUILD_OPTS }}
-        
+
       - name: Save step-exchange Data
         uses: actions/upload-artifact@v4
         if: always()
         with:
           name: "step-exchange--${{ env.GITHUB_REPO_NAME }}--#${{ github.run_number }}"
           path: ${{ github.workspace }}/git-repo/.step-exchange/
+          include-hidden-files: true
           if-no-files-found: ignore
 
       - name: Save Test Report
@@ -198,7 +210,15 @@ jobs:
           path: "**/dist/testReports/*.xml"
           if-no-files-found: ignore
 
-#          
+      - name: Save Integration Test Logs
+        uses: actions/upload-artifact@v4
+        if: inputs.run-integration-tests
+        with:
+          name: "integration-test-logs--${{ env.GITHUB_REPO_NAME }}--#${{ github.run_number }}"
+          path: "${{ github.workspace }}/integration-tests/logs/**/*"
+          if-no-files-found: ignore
+
+#
 # Uncomment 'ctx'job if you want to see what's available in context objects like ${ github.xyz }        
 #
 
