@@ -15,7 +15,7 @@ on:
       job-name:
         type: string
         default: 'custom-range'
-      # Generic parameter for propagating environment variables (assignment delimiter: \u241F, pair delimiter: \u241E)
+      # Generic parameter for propagating environment variables (assignment delimiter: =, pair delimiter: "\n--- ")
       env-vars:
         type: string
         default: ""
