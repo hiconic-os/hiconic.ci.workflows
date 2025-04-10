@@ -2,6 +2,11 @@ name: Handle PRs
 
 on:
   workflow_call:
+    inputs:
+      # Generic parameter for propagating environment variables (assignment delimiter: \u241F, pair delimiter: \u241E)
+      env-vars:
+        type: string
+        default: ""
     secrets:
       DEVROCK_PIPELINE_UPLOAD_USER:
         required: true
@@ -23,3 +28,4 @@ jobs:
         # github.base_ref is the name of the branch, e.g. 'main'
         analyze-codebase-opts: '--baseBranch ${{ github.base_ref }}'
         comment-input: '${{ github.event.pull_request.body }}'
+        env-vars: ${{ inputs.env-vars }}
