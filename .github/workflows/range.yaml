@@ -15,6 +15,10 @@ on:
       job-name:
         type: string
         default: 'custom-range'
+      # Generic parameter for propagating environment variables (assignment delimiter: \u241F, pair delimiter: \u241E)
+      env-vars:
+        type: string
+        default: ""
 
     secrets:
       DEVROCK_PIPELINE_UPLOAD_USER:
@@ -38,3 +42,4 @@ jobs:
         analyze-codebase-opts: '--baseBranch ${{ github.ref_name }} --buildArtifacts ${{ inputs.range }}'
         publish: ${{ inputs.publish }}
         run-integration-tests: ${{ inputs.run-integration-tests }}
+        env-vars: ${{ inputs.env-vars }}
