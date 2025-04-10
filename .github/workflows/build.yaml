@@ -90,8 +90,12 @@ jobs:
           mkdir integration-tests
 
           # Generic propagation of environment variables
-          SP=$'\u241E'; EQ=$'\u241F'; IFS="$SP" read -ra PAIRS <<< "${{ inputs.env-vars }}"
-          for pair in "${PAIRS[@]}"; do IFS="$EQ" read -ra KV <<< "$pair"; [[ -n "${KV[0]}" && -n "${KV[1]}" ]] && export "${KV[0]}=${KV[1]}" done
+          INPUT_ENV_VARS="${{ inputs.env-vars }}"
+          INPUT="${INPUT_ENV_VARS#*$'\n-- '}"
+          while [[ -n "$INPUT" ]]; do
+            [[ "$INPUT" == *$'\n-- '* ]] && { block="${INPUT%%$'\n-- '*}"; INPUT="${INPUT#*$'\n-- '}"; } || { block="$INPUT"; INPUT=""; }
+            export "${block%%=*}=${block#*=}"
+          done
 
       - name: Checkout code
         uses: actions/checkout@v4
