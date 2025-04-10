@@ -26,6 +26,10 @@ on:
       comment-input:
         type: string
         required: false
+      # Generic parameter for propagating environment variables (assignment delimiter: \u241F, pair delimiter: \u241E)
+      env-vars:
+        type: string
+        default: ""
 
     secrets:
       DEVROCK_PIPELINE_UPLOAD_USER:
@@ -84,6 +88,10 @@ jobs:
           mkdir inst
           mkdir repo
           mkdir integration-tests
+
+          # Generic propagation of environment variables
+          SP=$'\u241E'; EQ=$'\u241F'; IFS="$SP" read -ra PAIRS <<< "${{ inputs.env-vars }}"
+          for pair in "${PAIRS[@]}"; do IFS="$EQ" read -ra KV <<< "$pair"; [[ -n "${KV[0]}" && -n "${KV[1]}" ]] && export "${KV[0]}=${KV[1]}" done
 
       - name: Checkout code
         uses: actions/checkout@v4
