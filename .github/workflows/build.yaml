@@ -38,6 +38,8 @@ on:
         required: true
       NODE_AUTH_TOKEN:
         required: false
+      HC_DECRYPT_SECRET:
+        required: false
 
 # Ensure no two workflows of the same type (e.g. 2 PRs) are running at the same time
 # FYI within a repo, no 2 workflows with the same group value would run concurrently;
@@ -76,6 +78,9 @@ jobs:
       # Required by .npmrc
 
       NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
+
+      # Eventually required by pipeline steps
+      HC_DECRYPT_SECRET: ${{ secrets.HC_DECRYPT_SECRET }}
 
     defaults:
       run:
