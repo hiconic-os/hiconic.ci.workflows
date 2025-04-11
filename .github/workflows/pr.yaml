@@ -14,7 +14,8 @@ on:
         required: true
       NODE_AUTH_TOKEN:
         required: false
-
+      HC_DECRYPT_SECRET:
+        required: false
 jobs:
   pr:
     uses: ./.github/workflows/build.yaml
@@ -22,6 +23,7 @@ jobs:
       DEVROCK_PIPELINE_UPLOAD_USER: "${{ secrets.DEVROCK_PIPELINE_UPLOAD_USER }}"
       DEVROCK_PIPELINE_UPLOAD_PASSWORD: "${{ secrets.DEVROCK_PIPELINE_UPLOAD_PASSWORD }}"
       NODE_AUTH_TOKEN: "${{ secrets.NODE_AUTH_TOKEN }}"
+      HC_DECRYPT_SECRET: "${{ secrets.HC_DECRYPT_SECRET }}"
     with:
         job-name: 'pull-request'
         checkout-ref: 'refs/pull/${{ github.event.number }}/head'
