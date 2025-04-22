@@ -80,7 +80,7 @@ jobs:
       NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
 
       # Eventually required by pipeline steps
-      HC_DECRYPT_SECRET: ${{ secrets.HC_DECRYPT_SECRET }}
+      ENVIRONMENT_TRIBEFIRE_DECRYPT_SECRET: ${{ secrets.HC_DECRYPT_SECRET }}
 
     defaults:
       run:
