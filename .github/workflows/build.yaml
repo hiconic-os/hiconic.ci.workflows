@@ -229,7 +229,7 @@ jobs:
 
       - name: Save Integration Test Logs
         uses: actions/upload-artifact@v4
-        if: inputs.run-integration-tests
+        if: always() && inputs.run-integration-tests
         with:
           name: "integration-test-logs--${{ env.GITHUB_REPO_NAME }}--#${{ github.run_number }}"
           path: "${{ github.workspace }}/integration-tests/logs/**/*"
