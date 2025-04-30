@@ -97,10 +97,9 @@ jobs:
 
           # Generic propagation of environment variables
           INPUT_ENV_VARS="${{ inputs.env-vars }}"
-          INPUT="${INPUT_ENV_VARS#*$'\n-- '}"
+          INPUT="${INPUT_ENV_VARS#*$'-- '}"
           while [[ -n "$INPUT" ]]; do
             [[ "$INPUT" == *$'\n-- '* ]] && { block="${INPUT%%$'\n-- '*}"; INPUT="${INPUT#*$'\n-- '}"; } || { block="$INPUT"; INPUT=""; }
-            echo "${block%%=*}=${block#*=}"
             export "${block%%=*}=${block#*=}"
           done
       - name: Checkout code
