@@ -89,6 +89,7 @@ jobs:
     steps:
       - name: Initialize Workspace
         working-directory: ${{ github.workspace }}
+        shell: bash
         run: |
           mkdir inst
           mkdir repo
@@ -99,10 +100,8 @@ jobs:
           INPUT="${INPUT_ENV_VARS#*$'\n-- '}"
           while [[ -n "$INPUT" ]]; do
             [[ "$INPUT" == *$'\n-- '* ]] && { block="${INPUT%%$'\n-- '*}"; INPUT="${INPUT#*$'\n-- '}"; } || { block="$INPUT"; INPUT=""; }
-            echo "${block%%=*}=${block#*=}"
             export "${block%%=*}=${block#*=}"
           done
-
       - name: Checkout code
         uses: actions/checkout@v4
         with:
