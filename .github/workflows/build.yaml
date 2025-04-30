@@ -89,19 +89,10 @@ jobs:
     steps:
       - name: Initialize Workspace
         working-directory: ${{ github.workspace }}
-        shell: bash
         run: |
           mkdir inst
           mkdir repo
           mkdir integration-tests
-
-          # Generic propagation of environment variables
-          INPUT_ENV_VARS="${{ inputs.env-vars }}"
-          INPUT="${INPUT_ENV_VARS#*$'-- '}"
-          while [[ -n "$INPUT" ]]; do
-            [[ "$INPUT" == *$'\n-- '* ]] && { block="${INPUT%%$'\n-- '*}"; INPUT="${INPUT#*$'\n-- '}"; } || { block="$INPUT"; INPUT=""; }
-            export "${block%%=*}=${block#*=}"
-          done
       - name: Checkout code
         uses: actions/checkout@v4
         with:
@@ -173,8 +164,17 @@ jobs:
         # In other places it doesn't matter
         # ${{ github.workspace}} - /home/runner/work/REPO_NAME/REPO_NAME
         # $GITHUB_WORKSPACE      - /__w/REPO_NAME/REPO_NAME
-        run: hc-build run-integration-tests --workingDirectory "$GITHUB_WORKSPACE/integration-tests" ${{ env.HC_BUILD_OPTS }}
-
+        shell: bash
+        run: |
+          # Generic propagation of environment variables
+          INPUT_ENV_VARS="${{ inputs.env-vars }}"
+          INPUT="${INPUT_ENV_VARS#*$'-- '}"
+          while [[ -n "$INPUT" ]]; do
+            [[ "$INPUT" == *$'\n-- '* ]] && { block="${INPUT%%$'\n-- '*}"; INPUT="${INPUT#*$'\n-- '}"; } || { block="$INPUT"; INPUT=""; }
+            export "${block%%=*}=${block#*=}"
+          done
+  
+          hc-build run-integration-tests --workingDirectory "$GITHUB_WORKSPACE/integration-tests" ${{ env.HC_BUILD_OPTS }}
       # https://github.com/marketplace/actions/junit-report-action
       - name: Create Test Report
         uses: mikepenz/action-junit-report@v4
