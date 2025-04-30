@@ -99,6 +99,7 @@ jobs:
           INPUT="${INPUT_ENV_VARS#*$'\n-- '}"
           while [[ -n "$INPUT" ]]; do
             [[ "$INPUT" == *$'\n-- '* ]] && { block="${INPUT%%$'\n-- '*}"; INPUT="${INPUT#*$'\n-- '}"; } || { block="$INPUT"; INPUT=""; }
+            echo "${block%%=*}=${block#*=}"
             export "${block%%=*}=${block#*=}"
           done
 
