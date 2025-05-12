@@ -59,7 +59,7 @@ jobs:
       GITHUB_REPO_NAME: ${{ github.event.repository.name }}
       GIT_REPO_DIR: ${{ github.workspace }}/git-repo
 
-      HC_BUILD_OPTS: " : options --protocolCharset UTF-8"
+      HC_BUILD_OPTIONS: " : options --protocolCharset UTF-8"
 
       # Used by Devrock tools
 
@@ -93,6 +93,8 @@ jobs:
           mkdir inst
           mkdir repo
           mkdir integration-tests
+          jinni version
+          
       - name: Checkout code
         uses: actions/checkout@v4
         with:
@@ -134,7 +136,7 @@ jobs:
       - name: Analyze Codebase
         id: analyze-codebase
         run: |
-          hc-build initialize-exchange ${{ env.HC_BUILD_OPTS }}
+          hc-build initialize-exchange ${{ env.HC_BUILD_OPTIONS }}
 
           if [ '${{ github.event_name }}' = 'pull_request' ]; then
             echo "Setting up GitHub notifications"
@@ -142,21 +144,21 @@ jobs:
             echo '{requestLabelMappings: [{request: "PublishArtifacts", label: "published", color: "5319E7"}]}' > .step-exchange/git-hub-notification-mapping.yaml
           fi
 
-          hc-build enrich-exchange-context --commentInput "${{ inputs.comment-input }}" ${{ env.HC_BUILD_OPTS }}
-          hc-build analyze-codebase ${{ inputs.analyze-codebase-opts }} ${{ env.HC_BUILD_OPTS }}
+          hc-build enrich-exchange-context --commentInput "${{ inputs.comment-input }}" ${{ env.HC_BUILD_OPTIONS }}
+          hc-build analyze-codebase ${{ inputs.analyze-codebase-opts }} ${{ env.HC_BUILD_OPTIONS }}
 
           hasNpm=$(hc-build read-from-exchange-context --type devrock.cicd.model.api.data.CodebaseSummary --property hasNpmBuild : options --response stdout --protocol none)
           echo "hasNpm=$hasNpm"
           echo "hasNpm=$hasNpm" >> $GITHUB_OUTPUT
 
       - name: Build Artifacts
-        run: hc-build build-artifacts --generateOptionals true ${{ env.HC_BUILD_OPTS }}
+        run: hc-build build-artifacts --generateOptionals true ${{ env.HC_BUILD_OPTIONS }}
 
       - name: Check Linking
-        run: hc-build check-linking ${{ env.HC_BUILD_OPTS }}
+        run: hc-build check-linking ${{ env.HC_BUILD_OPTIONS }}
 
       - name: Run Tests
-        run: hc-build run-tests ${{ env.HC_BUILD_OPTS }}
+        run: hc-build run-tests ${{ env.HC_BUILD_OPTIONS }}
 
       - name: Run Integration Tests
         if: inputs.run-integration-tests
@@ -174,7 +176,7 @@ jobs:
             export "${block%%=*}=${block#*=}"
           done
   
-          hc-build run-integration-tests --workingDirectory "$GITHUB_WORKSPACE/integration-tests" ${{ env.HC_BUILD_OPTS }}
+          hc-build run-integration-tests --workingDirectory "$GITHUB_WORKSPACE/integration-tests" ${{ env.HC_BUILD_OPTIONS }}
       # https://github.com/marketplace/actions/junit-report-action
       - name: Create Test Report
         uses: mikepenz/action-junit-report@v4
@@ -199,16 +201,16 @@ jobs:
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
 
-          hc-build raise-and-merge-artifacts ${{ env.HC_BUILD_OPTS }}
+          hc-build raise-and-merge-artifacts ${{ env.HC_BUILD_OPTIONS }}
 
-          hc-build publish-artifacts ${{ env.HC_BUILD_OPTS }}
+          hc-build publish-artifacts ${{ env.HC_BUILD_OPTIONS }}
 
       # It's safer to publish npm packages after Publish, despite that already setting the "published" label on the PR
       # If we published npm first, and then Maven publishing would fail and not increase versions of certain models,
       # every subsequent attempt to publish into npm would fail because of an already existing version
       - name: Publish npm Packages
         if: inputs.publish && steps.analyze-codebase.outputs.hasNpm == 'true'
-        run: hc-build publish-npm-packages ${{ env.HC_BUILD_OPTS }}
+        run: hc-build publish-npm-packages ${{ env.HC_BUILD_OPTIONS }}
 
       - name: Save step-exchange Data
         uses: actions/upload-artifact@v4
