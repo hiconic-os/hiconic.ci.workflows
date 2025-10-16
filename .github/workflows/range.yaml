@@ -19,6 +19,10 @@ on:
       env-vars:
         type: string
         default: ""
+      # Allows to parameterize the acompanying services (dockers) as JSON
+      services-json:
+        type: string
+        default: "{}"
 
     secrets:
       DEVROCK_PIPELINE_UPLOAD_USER:
@@ -46,3 +50,4 @@ jobs:
         publish: ${{ inputs.publish }}
         run-integration-tests: ${{ inputs.run-integration-tests }}
         env-vars: ${{ inputs.env-vars }}
+        services-json: ${{ inputs.services-json }}
