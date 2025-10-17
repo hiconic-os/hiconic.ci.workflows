@@ -1,4 +1,4 @@
-name: Build
+7name: Build
 
 # https://docs.github.com/en/actions/using-workflows/reusing-workflows
 
@@ -224,6 +224,17 @@ jobs:
         with:
           name: "step-exchange--${{ env.GITHUB_REPO_NAME }}--#${{ github.run_number }}"
           path: ${{ github.workspace }}/git-repo/.step-exchange/
+          include-hidden-files: true
+          if-no-files-found: ignore
+
+      - name: Save compiled repository configuration
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: "compiled-repo-config--${{ env.GITHUB_REPO_NAME }}--#${{ github.run_number }}"
+          path: |
+            ${{ github.workspace }}/repo/view
+            ${{ github.workspace }}/repo/compiled-repo-config
           include-hidden-files: true
           if-no-files-found: ignore
 
