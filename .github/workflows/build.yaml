@@ -233,9 +233,9 @@ jobs:
         with:
           name: "compiled-repo-config--${{ env.GITHUB_REPO_NAME }}--#${{ github.run_number }}"
           path: |
-            ${{ github.workspace }}/repo/views
-            ${{ github.workspace }}/repo/compiled-repo-config
-            ${{ github.workspace }}/git-repo/repository-configuration-ci.yaml
+            repo/views/**
+            repo/compiled-repo-config/**
+            git-repo/repository-configuration-ci.yaml
           include-hidden-files: true
           if-no-files-found: ignore
 
