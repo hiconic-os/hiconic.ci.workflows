@@ -158,7 +158,7 @@ jobs:
           echo "hasNpm=$hasNpm" >> $GITHUB_OUTPUT
 
       - name: Build Artifacts
-        run: hc-build build-artifacts --generateOptionals true ${{ env.HC_BUILD_OPTIONS }}
+        run: hc-build build-artifacts --generateOptionals ${{ vars.HC_BUILD_GENERATE_OPTIONALS || true }} ${{ env.HC_BUILD_OPTIONS }}
 
       - name: Check Linking
         run: hc-build check-linking ${{ env.HC_BUILD_OPTIONS }}
