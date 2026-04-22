@@ -41,12 +41,12 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           ref: ${{ github.ref }}
 
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: '22.12.0' # Specify the Node.js version you want to use
       #     registry-url: 'https://registry.npmjs.org'
@@ -80,7 +80,7 @@ jobs:
 
       # https://github.com/marketplace/actions/junit-report-action
       - name: Create Test Report
-        uses: mikepenz/action-junit-report@v4
+        uses: mikepenz/action-junit-report@v6
         if: always()
         with:
           report_paths: "junit.xml"
@@ -89,7 +89,7 @@ jobs:
           detailed_summary: true
 
       - name: Save Test Report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: "junit-results--${{ github.event.repository.name }}--#${{ github.run_number }}"
