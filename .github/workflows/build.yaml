@@ -247,6 +247,14 @@ jobs:
           path: "**/dist/testReports/*.xml"
           if-no-files-found: ignore
 
+      - name: Save Build Logs
+        uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: "build-logs--${{ env.GITHUB_REPO_NAME }}--#${{ github.run_number }}"
+          path: "/hiconic-sdk/tools/hc-build/logs/**/*"
+          if-no-files-found: ignore
+
       - name: Save Integration Test Logs
         uses: actions/upload-artifact@v7
         if: always() && inputs.run-integration-tests
